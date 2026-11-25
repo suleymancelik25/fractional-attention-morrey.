@@ -57,6 +57,17 @@ def make_batch(B, L, cfg, gen):
                 target=target, q_dist=q_dist, reps=reps)
 
 # ----------------------------- Model ----------------------------------
+def rope(t, base=10000.0):
+    """Döner konum kodlaması (RoPE, Su vd. 2024): t şekli (B, H, L, dh), dh çift."""
+    B, H, L, dh = t.shape
+    inv = base ** (-torch.arange(0, dh, 2, device=t.device, dtype=torch.float32) / dh)
+    ang = torch.arange(L, device=t.device, dtype=torch.float32)[:, None] * inv[None, :]
+    cos, sin = ang.cos(), ang.sin()
+    t1, t2 = t[..., 0::2], t[..., 1::2]
+    out = torch.stack((t1 * cos - t2 * sin, t1 * sin + t2 * cos), dim=-1)
+    return out.flatten(-2)
+
+
 class Attn(nn.Module):
     def __init__(self, d, H, kind, alpha=None):
         super().__init__()
@@ -82,7 +93,7 @@ class Attn(nn.Module):
     def bias(self, L, device):
         i = torch.arange(L, device=device)
         dist = (i[:, None] - i[None, :]).clamp(min=0).float()   # nedensel: j <= i
-        if self.kind == "softmax":
+        if self.kind in ("softmax", "rope"):
             return None
         if self.kind == "alibi":
             return -self.slopes[:, None, None] * dist[None]
@@ -93,6 +104,8 @@ class Attn(nn.Module):
     def forward(self, x):
         B, L, d = x.shape
         q, k, v = self.qkv(x).view(B, L, 3, self.H, self.dh).permute(2, 0, 3, 1, 4)
+        if self.kind == "rope":
+            q, k = rope(q), rope(k)
         b = self.bias(L, x.device)
         mask = torch.ones(L, L, dtype=torch.bool, device=x.device).tril()
         if b is None:
@@ -207,7 +220,7 @@ def learned_alphas(model):
     return res
 
 
-VARIANTS = [("softmax", None), ("alibi", None), ("frac", 0.25), ("frac", 0.5),
+VARIANTS = [("softmax", None), ("rope", None), ("alibi", None), ("frac", 0.25), ("frac", 0.5),
             ("frac", 0.75), ("frac_learn", None)]
 
 
@@ -228,7 +241,7 @@ def run_all(cfg, variants=VARIANTS):
 
 
 def name(kind, alpha):
-    return {"softmax": "Softmax", "alibi": "ALiBi", "frac_learn": "Kesirli, öğrenilebilir α"}.get(
+    return {"softmax": "Softmax", "rope": "RoPE", "alibi": "ALiBi", "frac_learn": "Kesirli, öğrenilebilir α"}.get(
         kind, f"Kesirli, α = {alpha}")
 
 
