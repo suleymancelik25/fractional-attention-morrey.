@@ -37,7 +37,7 @@ Experiment 3, quick smoke test on CPU (about 1 minute):
 python deney3.py --hizli
 ```
 
-Experiment 3, full run (6 models × 3 seeds; about 25 minutes on a T4 GPU):
+Experiment 3, full run (7 models × 3 seeds; about 30 minutes on a T4 GPU):
 
 ```bash
 python deney3.py
