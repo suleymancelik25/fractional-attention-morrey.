@@ -56,4 +56,5 @@ MIT. See `LICENSE`.
 ## Contact
 
 Süleyman Çelik, Fırat University, Elazığ, Türkiye. suleyman.celik@firat.edu.tr. ORCID: [0000-0003-3255-1950](https://orcid.org/0000-0003-3255-1950)
+
 | `deney3_rope_sonuclar.json` | Raw results of the RoPE baseline in Experiment 3 (3 seeds, run on CPU with identical settings). |
