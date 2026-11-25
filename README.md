@@ -9,7 +9,7 @@ Code accompanying the paper
 | File | Description |
 | --- | --- |
 | `deney.py` | Experiments 1–2 and the check of Theorem 1: critical exponent of the long-context growth law, the L² critical case, and attention dilution. NumPy only. Runs in about 5 seconds on a CPU. |
-| `deney3.py` | Experiment 3: length generalization of small Transformers (softmax, ALiBi, fractional attention with fixed and learnable order) on a long-range "most recent value" recall task. PyTorch. |
+| `deney3.py` | Experiment 3: length generalization of small Transformers (softmax, RoPE, ALiBi, fractional attention with fixed and learnable order) on a long-range "most recent value" recall task. PyTorch. |
 | `Deney3_Kesirli_Attention_Colab.ipynb` | Google Colab notebook for Experiment 3 (same code as `deney3.py`). Tested on a T4 GPU. |
 | `deney3_sonuclar.json` | Raw results of Experiment 3 (3 seeds). |
 
